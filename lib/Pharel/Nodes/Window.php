@@ -6,17 +6,17 @@ class Window extends Node {
     public $orders;
     public $framing;
     
-	public function __construct() {
-	    $this->orders = [];
-	}
-	
-	public function __clone() {
+    public function __construct() {
+        $this->orders = [];
+    }
+    
+    public function __clone() {
         $this->orders = array_map(function($x) { return clone $x }, $this->orders);
-	}
-	
-	public function frame($expr) {
+    }
+    
+    public function frame($expr) {
         $this->framing = $expr;
-	}
+    }
 
     public function rows($expr = null) {
         $this->frame(new Rows($expr));

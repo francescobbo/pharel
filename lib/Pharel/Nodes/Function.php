@@ -4,7 +4,8 @@ namespace Pharel\Nodes;
 
 class _Function extends Node
 {
-    use \Pharel\Expression;
+    use \Pharel\Predications;
+    use \Pharel\WindowPredications;
 
     public $expressions;
     public $alias;

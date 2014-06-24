@@ -35,7 +35,7 @@ class SelectCore extends Node {
         if ($this->having)
             $this->having = clone $this->having;
 
-		$this->projections = clone $this->projections;
+        $this->projections = clone $this->projections;
         $this->wheres = clone $this->wheres;
         $this->groups = clone $this->groups;
         $this->windows = clone $this->windows;
