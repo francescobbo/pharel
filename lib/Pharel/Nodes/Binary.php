@@ -12,9 +12,8 @@ class Binary extends Node {
         $this->right = $right;
     }
 
-    public function initialize_copy($other) {
-        // parent::initialize_copy($other);
-        if ($this->left)
+    public function __clone($other) {
+         if ($this->left)
             $this->left = clone $this->left;
         if ($this->right)
             $this->right = clone $this->right;

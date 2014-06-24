@@ -3,7 +3,7 @@
 namespace Pharel\Nodes;
 
 class Extract extends Unary {
-    //use \Pharel\Predications;
+    use \Pharel\Predications;
 
     public $field;
     public $alias;
