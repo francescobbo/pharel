@@ -9,8 +9,4 @@ class Unary extends Node {
         parent::__construct();
         $this->expr = $expr;
     }
-
-    public function hash() {
-        return $this->expr->hash();
-    }
 }

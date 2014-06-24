@@ -19,8 +19,4 @@ class Binary extends Node {
         if ($this->right)
             $this->right = clone $this->right;
     }
-
-    public function hash() {
-        return null; //[@left, @right].hash
-    }
 }
