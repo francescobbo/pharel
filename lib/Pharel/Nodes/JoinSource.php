@@ -7,7 +7,7 @@ class JoinSource extends Binary {
         parent::__construct($single_source, $joinop);
     }
      
-    public function empty() {
+    public function _empty() {
      	return !$this->left and empty($this->right);
     }
 }

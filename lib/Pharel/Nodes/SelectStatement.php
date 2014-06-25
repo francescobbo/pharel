@@ -10,8 +10,8 @@ class SelectStatement extends Node {
     public $offset;
     public $with;
 
-    public function __construct($cores == null) {
-        if ($cores === null) {
+    public function __construct($cores = null) {
+        if ($cores === null)
             $cores = [ new SelectCore() ];
 
         parent::__construct();

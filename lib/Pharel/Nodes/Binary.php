@@ -12,7 +12,7 @@ class Binary extends Node {
         $this->right = $right;
     }
 
-    public function __clone($other) {
+    public function __clone() {
          if ($this->left)
             $this->left = clone $this->left;
         if ($this->right)

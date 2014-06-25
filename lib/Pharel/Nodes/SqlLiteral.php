@@ -9,6 +9,6 @@ class SqlLiteral {
     use \Pharel\OrderPredications;
     
     public function __construct($value) {
-       $this->value = $value;
+        $this->value = $value;
     }
 }
