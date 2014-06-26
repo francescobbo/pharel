@@ -11,7 +11,7 @@ class _Function extends Node
     public $alias;
     public $distinct;
 
-    public function initialize($expr, $aliaz = null)
+    public function __construct($expr, $aliaz = null)
     {
         $this->expressions = $expr;
         $this->alias = $aliaz && new SqlLiteral($aliaz);
