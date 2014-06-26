@@ -200,7 +200,6 @@ class ToSql extends Reduce
             $collector = $this->visit($o->set_quantifier, $collector);
         }
 
-
         if (!empty($o->projections)) {
             $collector->add(" ");
             $len = count($o->projections) - 1;
@@ -812,6 +811,8 @@ class ToSql extends Reduce
             $collector->add("DISTINCT ");
 
         $collector = $this->inject_join($o->expressions, $collector, ", ")->add(")");
+        var_dump($name, $o);
+
         if ($o->alias) {
             $collector->add(" AS ");
             return $this->visit($o->alias, $collector);

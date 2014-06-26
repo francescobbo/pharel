@@ -11,7 +11,10 @@ class Extract extends Unary {
     public function __construct($expr, $field, $aliaz = null) {
         parent::__construct($expr);
         $this->field = $field;
-        $this->alias = $aliaz && new SqlLiteral($aliaz);
+        if (!is_null($aliaz))
+            $this->alias = new SqlLiteral($aliaz);
+        else
+            $this->alias = null;
     }
 
     public function _as($aliaz) {

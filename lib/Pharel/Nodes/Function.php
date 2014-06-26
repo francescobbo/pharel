@@ -14,7 +14,10 @@ class _Function extends Node
     public function __construct($expr, $aliaz = null)
     {
         $this->expressions = $expr;
-        $this->alias = $aliaz && new SqlLiteral($aliaz);
+        if (!is_null($aliaz))
+            $this->alias = new SqlLiteral($aliaz);
+        else
+            $this->alias = null;
         $this->distinct = false;
     }
 
