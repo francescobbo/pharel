@@ -85,16 +85,13 @@ echo $query->to_sql();
 ```php
 $users = new Pharel\Table("users");
 
-$users->where($users["age"]->eq(10))               // WHERE `users`.`age` = 10
+$users->where($users["age"]->eq(10))              // WHERE `users`.`age` = 10
 $users->where($users["age"]->not_eq(10))          // WHERE `users`.`age` != 10
 $users->where($users["age"]->gt(10))              // WHERE `users`.`age` > 10
 $users->where($users["age"]->gteq(10))            // WHERE `users`.`age` >= 10
 $users->where($users["age"]->lt(10))              // WHERE `users`.`age` < 10
 $users->where($users["age"]->lteq(10))            // WHERE `users`.`age` <= 10
 $users->where($users["age"]->in([ 3, 10, 26 ]))   // WHERE `users`.`age` IN (3, 10, 26)
-
-echo $query->to_sql();
-// => SELECT * FROM `users` WHERE `users`.`name` = 'amy';
 ```
 
 ## Status
