@@ -133,7 +133,7 @@ class ToSql extends Reduce
         return null; //@schema_cache.columns_hash(table)
     }
 
-    public function visit_Arel_Nodes_Values($o, $collector)
+    public function visit_Pharel_Nodes_Values($o, $collector)
     {
         $collector->add("VALUES (");
 
@@ -160,7 +160,7 @@ class ToSql extends Reduce
         }
 
         $f = function ($c, $x) {
-            return $this->visit_Arel_Nodes_SelectCore($x, $c);
+            return $this->visit_Pharel_Nodes_SelectCore($x, $c);
         };
 
         foreach ($o->cores as $x) {
@@ -186,7 +186,7 @@ class ToSql extends Reduce
         return $collector;
     }
 
-    public function visit_Arel_Nodes_SelectCore($o, $collector)
+    public function visit_Pharel_Nodes_SelectCore($o, $collector)
     {
         $collector->add("SELECT");
 
@@ -478,82 +478,93 @@ class ToSql extends Reduce
         return $this->aggregate("AVG", $o, $collector);
     }
 
-    public function quoted($o, $a) {
-        return $this->quote($o, $this->column_for($a));
+    public function visit_Pharel_Nodes_TableAlias($o, $collector) {
+        $collector = $this->visit($o->relation, $collector);
+        $collector->add(" ");
+        return $collector->add($this->quote_table_name($o->name));
     }
 
-    public function quote($value, $column = null) {
-        if ($value instanceof Nodes\SqlLiteral)
-            return $value;
+    public function visit_Pharel_Nodes_Between($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" BETWEEN ");
+        return $this->visit($o->right, $collector);
+    }
 
-        return "\"" . addslashes($value) . "\""; //@connection.quote value, column
+    public function visit_Pharel_Nodes_GreaterThanOrEqual($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" >= ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_GreaterThan($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" > ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_LessThanOrEqual($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" <= ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_LessThan($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" < ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Matches($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" LIKE ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_DoesNotMatch($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" NOT LIKE ");
+        return $this->visit($o->right, $collector);
     }
 
     public function visit_Pharel_Nodes_JoinSource($o, $collector) {
         if ($o->left)
             $collector = $this->visit($o->left, $collector);
-        
+
         if (count($o->right)) {
             if ($o->left)
                 $collector->add(" ");
-            
+
             $collector = $this->inject_join($o->right, $collector, ' ');
         }
-        
+
         return $collector;
     }
 
-    public function visit_Pharel_Table($o, $collector) {
-        if ($o->table_alias)
-            return $collector->add($this->quote_table_name($o->name) . " " . $this->quote_table_name($o->table_alias));
-        else
-            return $collector->add($this->quote_table_name($o->name));
+    public function visit_Pharel_Nodes_Regexp($o, $collector) {
+        throw new \Exception("~ Not implemented for this DB.");
     }
 
-    public function visit_Pharel_Nodes_Equality($o, $collector) {
-        $right = $o->right;
+    public function visit_Pharel_Nodes_NotRegexp($o, $collector) {
+        throw new \Exception("!~ Not implemented for this DB.");
+    }
 
+    public function visit_Pharel_Nodes_StringJoin($o, $collector) {
+        return $this->visit($o->left, $collector);
+    }
+
+    public function visit_Pharel_Nodes_FullOuterJoin($o, $collector) {
+        return "FULL OUTER JOIN " . $this->visit($o->left, $collector) . " " . $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_OuterJoin($o, $collector) {
+        $collector->add("LEFT OUTER JOIN ");
         $collector = $this->visit($o->left, $collector);
-
-        if (property_exists($right, 'expr') and is_null($right->expr))
-            return $collector->add(" IS NULL");
-        else {
-            $collector->add(" = ");
-            return $this->visit($right, $collector);
-        }
-    }
-
-    public function visit_Pharel_Attribute($o, $collector) {
-        if ($o->relation->table_alias)
-            $join_name = $o->relation->table_alias;
-        else
-            $join_name = $o->relation->name;
-        
-        return $collector->add($this->quote_table_name($join_name) . "." . $this->quote_column_name($o->name));
-    }
-
-    public function visit_array($o, $collector) {
-        return $this->inject_join($o, $collector, ", ");
-    }
-
-    public function maybe_visit($thing, $collector) {
-        if (!$thing)
-            return $collector;
-
         $collector->add(" ");
-        return $this->visit($thing, $collector);
+        return $this->visit($o->right, $collector);
     }
 
-    public function literal($o, $collector) {
-        return $collector->add($o);
-    }
-
-    public function visit_Pharel_Nodes__And($o, $collector) {
-        return $this->inject_join($o->children, $collector, " AND ");
-    }
-
-    public function visit_Pharel_Nodes_SqlLiteral($o, $collector) {
-        return $this->literal($o->value, $collector);
+    public function visit_Pharel_Nodes_RightOuterJoin($o, $collector) {
+        return "RIGHT OUTER JOIN " . $this->visit($o->left, $collector) . " " . $this->visit($o->right, $collector);
     }
 
     public function visit_Pharel_Nodes_InnerJoin($o, $collector) {
@@ -571,6 +582,205 @@ class ToSql extends Reduce
     public function visit_Pharel_Nodes_On($o, $collector) {
         $collector->add("ON ");
         return $this->visit($o->expr, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Not($o, $collector) {
+        $collector->add("NOT (");
+        return $this->visit($o->expr, $collector)->add(")");
+    }
+
+    public function visit_Pharel_Table($o, $collector) {
+        if ($o->table_alias)
+            return $collector->add($this->quote_table_name($o->name) . " " . $this->quote_table_name($o->table_alias));
+        else
+            return $collector->add($this->quote_table_name($o->name));
+    }
+
+    public function visit_Pharel_Nodes_In($o, $collector) {
+        if (is_array($o->right) and empty($o->right))
+            return $collector->add('1 = 0');
+        else {
+            $collector = $this->visit($o->left, $collector);
+            $collector->add(" IN (");
+            $collector = $this->visit($o->right, $collector);
+            return $collector->add(")");
+        }
+    }
+
+    public function visit_Pharel_Nodes_NotIn($o, $collector) {
+        if (is_array($o->right) and empty($o->right))
+            return $collector->add('1 = 1');
+        else {
+            $collector = $this->visit($o->left, $collector);
+            $collector->add(" NOT IN (");
+            $collector = $this->visit($o->right, $collector);
+            return $collector->add(")");
+        }
+    }
+
+    public function visit_Pharel_Nodes__And($o, $collector) {
+        return $this->inject_join($o->children, $collector, " AND ");
+    }
+
+    public function visit_Pharel_Nodes__Or($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" OR ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Assignment($o, $collector) {
+        if ($o->right instanceof Nodes\UnqualifiedColumn or
+            $o->right instanceof Attribute or
+            $o->right instanceof Nodes\BindParam) {
+            $collector = $this->visit($o->left, $collector);
+            $collector->add(" = ");
+            return $this->visit($o->right, $collector);
+        } else {
+            $collector = $this->visit($o->left, $collector);
+            $collector->add(" = ");
+            return $collector->add($this->quote($o->right, $this->column_for($o->left)));
+        }
+    }
+
+    public function visit_Pharel_Nodes_Equality($o, $collector) {
+        $right = $o->right;
+
+        $collector = $this->visit($o->left, $collector);
+
+        if (property_exists($right, 'expr') and is_null($right->expr))
+            return $collector->add(" IS NULL");
+        else {
+            $collector->add(" = ");
+            return $this->visit($right, $collector);
+        }
+    }
+
+    public function visit_Pharel_Nodes_NotEqual($o, $collector) {
+        $right = $o->right;
+
+        $collector = $this->visit($o->left, $collector);
+
+        if (property_exists($right, 'expr') and is_null($right->expr))
+            return $collector->add(" IS NOT NULL");
+        else {
+            $collector->add(" != ");
+            return $this->visit($right, $collector);
+        }
+    }
+
+    public function visit_Pharel_Nodes_As($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" AS ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_UnqualifiedColumn($o, $collector) {
+        return $collector->add($this->quote_column_name($o->name));
+    }
+
+    public function visit_Pharel_Attribute($o, $collector) {
+        if ($o->relation->table_alias)
+            $join_name = $o->relation->table_alias;
+        else
+            $join_name = $o->relation->name;
+
+        return $collector->add($this->quote_table_name($join_name) . "." . $this->quote_column_name($o->name));
+    }
+
+    public function visit_Pharel_Attributes_Integer($o, $collector) {
+        return $this->visit_Pharel_Attribute($o, $collector);
+    }
+    public function visit_Pharel_Attributes_Float($o, $collector) {
+        return $this->visit_Pharel_Attribute($o, $collector);
+    }
+    public function visit_Pharel_Attributes_Decimal($o, $collector) {
+        return $this->visit_Pharel_Attribute($o, $collector);
+    }
+    public function visit_Pharel_Attributes_String($o, $collector) {
+        return $this->visit_Pharel_Attribute($o, $collector);
+    }
+    public function visit_Pharel_Attributes_Time($o, $collector) {
+        return $this->visit_Pharel_Attribute($o, $collector);
+    }
+    public function visit_Pharel_Attributes_Boolean($o, $collector) {
+        return $this->visit_Pharel_Attribute($o, $collector);
+    }
+
+    public function literal($o, $collector) {
+        return $collector->add($o);
+    }
+
+    public function visit_Pharel_Nodes_BindParam($o, $collector) {
+        return $collector->add_bind($o);
+    }
+
+    public function visit_Pharel_Nodes_SqlLiteral($o, $collector) {
+        return $this->literal($o->value, $collector);
+    }
+
+    public function visit_integer($o, $collector) {
+        return $this->literal($o, $collector);
+    }
+
+    public function visit_double($o, $collector) {
+        return $this->literal($o, $collector);
+    }
+
+    public function quoted($o, $a) {
+        return $this->quote($o, $this->column_for($a));
+    }
+
+    public function visit_Arel_Nodes_InfixOperation($o, $collector) {
+        $collector = $this->visit($o->left, $collector);
+        $collector->add(" " . $o->operator . " ");
+        return $this->visit($o->right, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Addition($o, $collector) {
+        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Subtraction($o, $collector) {
+        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Multiplication($o, $collector) {
+        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+    }
+
+    public function visit_Pharel_Nodes_Division($o, $collector) {
+        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+    }
+
+    public function visit_array($o, $collector) {
+        return $this->inject_join($o, $collector, ", ");
+    }
+
+    public function quote($value, $column = null) {
+        if ($value instanceof Nodes\SqlLiteral)
+            return $value;
+
+        return "\"" . addslashes($value) . "\""; //@connection.quote value, column
+    }
+
+    private function quote_table_name($name) {
+        if ($name instanceof Nodes\SqlLiteral)
+            return $name;
+        return "`{$name}`";//@quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
+    }
+
+    private function quote_column_name($name) {
+        if ($name instanceof Nodes\SqlLiteral)
+            return $name;
+        return "`{$name}`";//@quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
+    }
+
+    public function maybe_visit($thing, $collector) {
+        if (!$thing)
+            return $collector;
+
+        $collector->add(" ");
+        return $this->visit($thing, $collector);
     }
 
     public function inject_join($list, $collector, $join_str) {
@@ -607,13 +817,5 @@ class ToSql extends Reduce
             return $this->visit($o->alias, $collector);
         } else
             return $collector;
-    }
-
-    private function quote_column_name($name) {
-        return "`{$name}`";//@quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
-    }
-
-    private function quote_table_name($name) {
-        return "`{$name}`";//@quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
     }
 }
