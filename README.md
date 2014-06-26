@@ -27,7 +27,7 @@ I could not resist the pulse to make a gem -- ehm, a package. So you can use [Co
 
     {
         "require-dev": {
-            "aomega08/pharel": "0.*"
+            "aomega/pharel": "0.*"
         }
     }
 
