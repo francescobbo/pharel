@@ -11,7 +11,7 @@ trait Crud {
         else
             $relation = $values[0][0]->relation;
         
-        $um->key = pk;
+        $um->key = $pk;
         $um->table($relation);
         $um->set($values);
         if ($this->ast->limit)

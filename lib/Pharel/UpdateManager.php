@@ -2,6 +2,10 @@
 
 namespace Pharel;
 
+/**
+ * @property mixed $key alias for $ast->key
+ * @property mixed $wheres alias for $ast->wheres
+ */
 class UpdateManager extends TreeManager {
     public function __construct($engine) {
         parent::__construct($engine);
@@ -60,4 +64,3 @@ class UpdateManager extends TreeManager {
             throw new \Exception("cannot set");
     }
 }
-
