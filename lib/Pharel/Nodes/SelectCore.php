@@ -39,6 +39,6 @@ class SelectCore extends Node {
         $this->wheres = clone $this->wheres;
         $this->groups = clone $this->groups;
         $this->windows = clone $this->windows;
-    }    
+    }
 }
 

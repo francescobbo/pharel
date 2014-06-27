@@ -56,18 +56,18 @@ class Table implements \ArrayAccess {
         return new SelectManager($this->engine, $table);
     }
 
-    public function join($relation, $klass = "\Pharel\Nodes\InnerJoin") {
+    public function join($relation, $klass = "\\Pharel\\Nodes\\InnerJoin") {
         if (!$relation)
             return $this->from($this);
 
         if (is_string($relation) or $relation instanceof Nodes\SqlLiteral)
-            $klass = "\Pharel\Nodes\StringJoin";
+            $klass = "\\Pharel\\Nodes\\StringJoin";
 
         return $this->from($this)->join($relation, $klass);
     }
 
     public function outer_join($relation) {
-        return $this->join($relation, "Nodes\OuterJoin");
+        return $this->join($relation, "Nodes\\OuterJoin");
     }
 
     public function group() {
@@ -125,7 +125,7 @@ class Table implements \ArrayAccess {
     }
 
     public function offsetSet($offset, $value) {
-        throw new Exception("Cannot set an attribute!");
+        throw new \Exception("Cannot set an attribute!");
     }
 
     public function offsetExists($offset) {
@@ -133,7 +133,7 @@ class Table implements \ArrayAccess {
     }
 
     public function offsetUnset($offset) {
-        throw new Exception("Cannot unset an attribute!");
+        throw new \Exception("Cannot unset an attribute!");
     }
 
     public function offsetGet($name) {

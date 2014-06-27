@@ -18,7 +18,7 @@ class DeleteManager extends TreeManager {
         if ($var == 'wheres') {
             return $this->ast->wheres = $val;
         } else {
-            throw new Exception("cannot set!");
+            throw new \Exception("cannot set!");
         }
     }
 }

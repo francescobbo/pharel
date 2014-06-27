@@ -27,7 +27,7 @@ class TableAlias extends Binary implements ArrayAccess {
     }
     
     public function offsetSet($offset, $value) {
-        throw new Exception("Cannot set an attribute!");
+        throw new \Exception("Cannot set an attribute!");
     }
 
     public function offsetExists($offset) {
@@ -35,7 +35,7 @@ class TableAlias extends Binary implements ArrayAccess {
     }
 
     public function offsetUnset($offset) {
-        throw new Exception("Cannot unset an attribute!");
+        throw new \Exception("Cannot unset an attribute!");
     }
 }
 

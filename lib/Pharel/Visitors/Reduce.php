@@ -12,7 +12,7 @@ class Reduce extends Visitor {
 
         try {
             return $this->$visit($object, $collector);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
         }
     }

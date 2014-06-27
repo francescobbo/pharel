@@ -11,7 +11,7 @@ class Nodes {
             $other instanceof SelectManager) {
             return $other;
         } else {
-            if ($attribute instanceof Pharel\Attributes\Attribute)
+            if ($attribute instanceof \Pharel\Attribute)
                 return new Nodes\Casted($other, $attribute);
             else
                 return new Nodes\Quoted($other);

@@ -109,12 +109,12 @@ class SelectManager extends TreeManager {
         }, $this->ast->cores));
     }
 
-    public function join($relation, $klass = "\Pharel\Nodes\InnerJoin") {
+    public function join($relation, $klass = "\\Pharel\\Nodes\\InnerJoin") {
         if (!$relation)
             return $this;
 
         if (is_string($relation) or $relation instanceof Nodes\SqlLiteral) {
-            $klass = "\Pharel\Nodes\StringJoin";
+            $klass = "\\Pharel\\Nodes\\StringJoin";
         }
 
         $this->ctx->source->right[] = $this->create_join($relation, null, $klass);
@@ -122,7 +122,7 @@ class SelectManager extends TreeManager {
     }
 
     public function outer_join($relation) {
-        return $this->join($relation, "Nodes\OuterJoin");
+        return $this->join($relation, "Nodes\\OuterJoin");
     }
 
     public function having() {

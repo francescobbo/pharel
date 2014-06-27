@@ -13,11 +13,10 @@ class ToSql extends Reduce
     const _AND = ' AND ';
     const DISTINCT = 'DISTINCT';
 
+    protected $connection, $schema_cache, $quoted_tables, $quoted_columns;
+
     public function __construct($connection)
     {
-        var_dump($connection);
-
-
         $this->connection = $connection;
         $this->schema_cache   = $connection->schema_cache();
         $this->quoted_tables = [];
@@ -40,7 +39,7 @@ class ToSql extends Reduce
         if (empty($o->orders) and $o->limit == null) {
             $wheres = $o->wheres;
         } else {
-            $wheres = [new \PharelNodes\In($o->key, [build_subselect($o->key, $o)])];
+            $wheres = [new \Pharel\Nodes\In($o->key, [build_subselect($o->key, $o)])];
         }
 
         $collector->add("UPDATE ");
@@ -143,7 +142,7 @@ class ToSql extends Reduce
         $len = count($o->expressions) - 1;
 
         foreach ($o->expressions as $i => $value) {
-            if ($value instanceof \PharelNodes\SqlLiteral)
+            if ($value instanceof \Pharel\Nodes\SqlLiteral)
                 $collector = $this->visit($value, $collector);
             else
                 $collector->add($this->quote($value, $o->columns[$i] && $this->column_for($o->columns[$i])));
@@ -632,7 +631,7 @@ class ToSql extends Reduce
 
     public function visit_Pharel_Nodes_Assignment($o, $collector) {
         if ($o->right instanceof \Pharel\Nodes\UnqualifiedColumn or
-            $o->right instanceof Attribute or
+            $o->right instanceof \Pharel\Attribute or
             $o->right instanceof \Pharel\Nodes\BindParam) {
             $collector = $this->visit($o->left, $collector);
             $collector->add(" = ");

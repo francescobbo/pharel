@@ -33,7 +33,7 @@ class Visitor {
 
         try {
             return $this->$visit($object);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
         }
     }

@@ -15,12 +15,12 @@ trait FactoryMethods {
         return new Nodes\TableAlias($relation, $name);
     }
 
-    public function create_join($to, $constraint = null, $klass = "\Pharel\Nodes\InnerJoin") {
+    public function create_join($to, $constraint = null, $klass = "\\Pharel\\Nodes\\InnerJoin") {
         return new $klass($to, $constraint);
     }
 
     public function create_string_join($to) {
-        return create_join($to, null, "\Pharel\Nodes\StringJoin");
+        return create_join($to, null, "\\Pharel\\Nodes\\StringJoin");
     }
 
     public function create_and($clauses) {
