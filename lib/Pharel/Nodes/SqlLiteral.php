@@ -7,7 +7,9 @@ class SqlLiteral {
     use \Pharel\Predications;
     use \Pharel\AliasPredication;
     use \Pharel\OrderPredications;
-    
+
+    public $value;
+
     public function __construct($value) {
         if ($value instanceof SqlLiteral)
             $this->value = $value->value;

@@ -10,8 +10,9 @@ class SelectCore extends Node {
     public $windows;
     public $having;
     public $source;
-    public $set_quantifies;
-    
+    public $set_quantifier;
+    public $from, $froms;
+
     public function __construct() {
         parent::__construct();
 

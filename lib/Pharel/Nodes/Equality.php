@@ -3,6 +3,8 @@
 namespace Pharel\Nodes;
 
 class Equality extends Binary {
+    public $operand1, $operand2;
+
     public function __construct($operator1, $operator2) {
         parent::__construct($operator1, $operator2);
         $this->operand1 = &$this->left;
