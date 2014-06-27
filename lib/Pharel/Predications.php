@@ -34,7 +34,7 @@ trait Predications {
             return new Nodes\In($this, $other->ast);
         else if (is_array($other)) {
             return new Nodes\In($this, array_map(function ($x) {
-                return Nodes::build_quoted($this);
+                return Nodes::build_quoted($x);
             }, $other));
         } else
             return new Nodes\In($this, Nodes::build_quoted($other, $this));
@@ -53,7 +53,7 @@ trait Predications {
             return new Nodes\NotIn($this, $other->ast);
         else if (is_array($other)) {
             return new Nodes\NotIn($this, array_map(function ($x) {
-                return Nodes::build_quoted($this);
+                return Nodes::build_quoted($x);
             }, $other));
         } else
             return new Nodes\NotIn($this, Nodes::build_quoted($other, $this));

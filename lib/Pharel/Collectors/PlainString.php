@@ -6,7 +6,7 @@ class PlainString {
     public $str = '';
 
     public function value() {
-        return $str;
+        return $this->str;
     }
 
     public function add($str) {

@@ -3,11 +3,11 @@
 namespace Pharel\Nodes;
 
 class InfixOperation extends Binary {
-    use \Pharel\Expressions
-    use \Pharel\Predications
-    use \Pharel\OrderPredications
-    use \Pharel\AliasPredication
-    use \Pharel\Math
+    use \Pharel\Expressions;
+    use \Pharel\Predications;
+    use \Pharel\OrderPredications;
+    use \Pharel\AliasPredication;
+    use \Pharel\Math;
 
     public $operator;
 

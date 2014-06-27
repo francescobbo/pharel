@@ -37,7 +37,7 @@ class MySQL extends ToSql {
      */
     public function visit_Pharel_Nodes_SelectStatement($o, $collector) {
         if ($o->offset && !$o->limit)
-            $o->limit = new Nodes\Limit(Nodes::build_quoted(18446744073709551615));
+            $o->limit = new Nodes\Limit(Nodes::build_quoted('18446744073709551615'));
 
         return parent::visit_Pharel_Nodes_SelectStatement($o, $collector);
     }

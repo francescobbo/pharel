@@ -4,10 +4,10 @@ namespace Pharel;
 
 trait OrderPredications {
     public function asc() {
-        return new Nodes\Ordering($this, 'asc');
+        return new Nodes\Ascending($this);
     }
 
     public function desc() {
-        return new Nodes\Ordering($this, 'desc');
+        return new Nodes\Descending($this);
     }
 }

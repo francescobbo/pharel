@@ -2,7 +2,7 @@
 
 namespace Pharel;
 
-class DeleteManager < TreeManager {
+class DeleteManager extends TreeManager {
     public function __construct($engine) {
         parent::__construct($engine);
         $this->ast = new Nodes\DeleteStatement;

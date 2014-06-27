@@ -811,7 +811,6 @@ class ToSql extends Reduce
             $collector->add("DISTINCT ");
 
         $collector = $this->inject_join($o->expressions, $collector, ", ")->add(")");
-        var_dump($name, $o);
 
         if ($o->alias) {
             $collector->add(" AS ");

@@ -25,7 +25,7 @@ class Bind {
         $bvs = clone $bvs;
 
         return array_map(function($val) use ($bvs) {
-            if ($val instanceof Nodes\BindParam) {
+            if ($val instanceof Nodes\BindParam)
                 return array_shift($bvs);
             else
                 return $val;
