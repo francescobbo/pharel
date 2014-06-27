@@ -18,7 +18,7 @@ class TreeManager {
     }
 
     public function visitor() {
-        return new Visitors\ToSql("test");//$this->engine->connection->visitor;
+        return $this->engine->connection->visitor;
     }
 
     public function to_dot() {

@@ -10,6 +10,9 @@ class Table implements \ArrayAccess {
     public $name, $engine, $aliases, $table_alias;
 
     public function __construct($table_name, $engine = null) {
+        if (self::$g_engine === null)
+            self::$g_engine = new FakeRecord\ConnectionPool;
+
         if ($engine === null)
             $engine = self::$g_engine;
 

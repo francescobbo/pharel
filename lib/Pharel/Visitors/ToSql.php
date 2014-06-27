@@ -15,8 +15,11 @@ class ToSql extends Reduce
 
     public function __construct($connection)
     {
+        var_dump($connection);
+
+
         $this->connection = $connection;
-//        $this->schema_cache   = $connection->schema_cache;
+        $this->schema_cache   = $connection->schema_cache();
         $this->quoted_tables = [];
         $this->quoted_columns = [];
     }
@@ -37,7 +40,7 @@ class ToSql extends Reduce
         if (empty($o->orders) and $o->limit == null) {
             $wheres = $o->wheres;
         } else {
-            $wheres = [new Nodes\In($o->key, [build_subselect($o->key, $o)])];
+            $wheres = [new \PharelNodes\In($o->key, [build_subselect($o->key, $o)])];
         }
 
         $collector->add("UPDATE ");
@@ -111,7 +114,7 @@ class ToSql extends Reduce
 
     public function table_exists($name)
     {
-        return false; //@schema_cache.table_exists? name
+        return $this->schema_cache->table_exists($name);
     }
 
     public function column_for($attr)
@@ -130,7 +133,7 @@ class ToSql extends Reduce
 
     public function column_cache($table)
     {
-        return null; //@schema_cache.columns_hash(table)
+        return $this->schema_cache->columns_hash($table);
     }
 
     public function visit_Pharel_Nodes_Values($o, $collector)
@@ -140,7 +143,7 @@ class ToSql extends Reduce
         $len = count($o->expressions) - 1;
 
         foreach ($o->expressions as $i => $value) {
-            if ($value instanceof Nodes\SqlLiteral)
+            if ($value instanceof \PharelNodes\SqlLiteral)
                 $collector = $this->visit($value, $collector);
             else
                 $collector->add($this->quote($value, $o->columns[$i] && $this->column_for($o->columns[$i])));
@@ -380,7 +383,7 @@ class ToSql extends Reduce
     public function visit_Pharel_Nodes_Over($o, $collector) {
         if (is_null($o->right))
             return $this->visit($o->left, $collector)->add(" OVER ()");
-        else if ($o->right instanceof Nodes\SqlLiteral)
+        else if ($o->right instanceof \Pharel\Nodes\SqlLiteral)
             return $this->infix_value($o, $collector, " OVER ");
         else if (is_string($o->right))
             return $this->visit($o->left, $collector)->add(" OVER " . $this->quote_column_name($o->right));
@@ -628,9 +631,9 @@ class ToSql extends Reduce
     }
 
     public function visit_Pharel_Nodes_Assignment($o, $collector) {
-        if ($o->right instanceof Nodes\UnqualifiedColumn or
+        if ($o->right instanceof \Pharel\Nodes\UnqualifiedColumn or
             $o->right instanceof Attribute or
-            $o->right instanceof Nodes\BindParam) {
+            $o->right instanceof \Pharel\Nodes\BindParam) {
             $collector = $this->visit($o->left, $collector);
             $collector->add(" = ");
             return $this->visit($o->right, $collector);
@@ -756,22 +759,31 @@ class ToSql extends Reduce
     }
 
     public function quote($value, $column = null) {
-        if ($value instanceof Nodes\SqlLiteral)
+        if ($value instanceof \Pharel\Nodes\SqlLiteral)
             return $value;
 
-        return "\"" . addslashes($value) . "\""; //@connection.quote value, column
+        return $this->connection->quote($value, $column);
     }
 
     private function quote_table_name($name) {
-        if ($name instanceof Nodes\SqlLiteral)
+        if ($name instanceof \Pharel\Nodes\SqlLiteral)
             return $name;
-        return "`{$name}`";//@quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
+
+        if (!isset($this->quoted_tables[$name]))
+            $this->quoted_tables[$name] = $this->connection->quote_table_name($name);
+
+        return $this->quoted_tables[$name];
     }
 
     private function quote_column_name($name) {
-        if ($name instanceof Nodes\SqlLiteral)
-            return $name;
-        return "`{$name}`";//@quoted_columns[name] ||= Arel::Nodes::SqlLiteral === name ? name : @connection.quote_column_name(name)
+        if (!isset($this->quoted_columns[$name])) {
+            if ($name instanceof \Pharel\Nodes\SqlLiteral)
+                $this->quoted_columns[$name->value] = $name;
+            else
+                $this->quoted_columns[$name] = $this->connection->quote_column_name($name);
+        }
+
+        return $this->quoted_columns[$name];
     }
 
     public function maybe_visit($thing, $collector) {
