@@ -20,7 +20,7 @@ trait FactoryMethods {
     }
 
     public function create_string_join($to) {
-        return create_join($to, null, "\\Pharel\\Nodes\\StringJoin");
+        return $this->create_join($to, null, "\\Pharel\\Nodes\\StringJoin");
     }
 
     public function create_and($clauses) {
