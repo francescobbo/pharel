@@ -16,8 +16,8 @@ trait Crud {
         $um->set($values);
         if ($this->ast->limit)
             $um->take($this->ast->limit->expr);
-        call_user_func_array([$um, 'order'], $this->ast.orders);
-        $um->wheres = $this->ctx.wheres;
+        call_user_func_array([$um, 'order'], $this->ast->orders);
+        $um->wheres = $this->ctx->wheres;
         return $um;
     }
 

@@ -3,6 +3,8 @@
 namespace Pharel\Collectors;
 
 class Bind {
+    public $parts;
+
     public function __construct() {
         $this->parts = [];
     }
@@ -25,7 +27,7 @@ class Bind {
         $bvs = clone $bvs;
 
         return array_map(function($val) use ($bvs) {
-            if ($val instanceof Nodes\BindParam)
+            if ($val instanceof \Pharel\Nodes\BindParam)
                 return array_shift($bvs);
             else
                 return $val;

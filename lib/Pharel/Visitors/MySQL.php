@@ -7,14 +7,14 @@ class MySQL extends ToSql {
         if (!$suppress_parens)
             $collector->add("( ");
 
-        if ($o->left instanceof Nodes\Union)
+        if ($o->left instanceof \Pharel\Nodes\Union)
             $collector = $this->visit_Pharel_Nodes_Union($o->left, $collector, true);
         else
             $collector = $this->visit($o->left, $collector);
 
         $collector->add(" UNION ");
 
-        if ($o->right instanceof Nodes\Union)
+        if ($o->right instanceof \Pharel\Nodes\Union)
             $collector = $this->visit_Pharel_Nodes_Union($o->right, $collector, true);
         else
             $collector = $this->visit($o->right, $collector);
@@ -37,7 +37,7 @@ class MySQL extends ToSql {
      */
     public function visit_Pharel_Nodes_SelectStatement($o, $collector) {
         if ($o->offset && !$o->limit)
-            $o->limit = new Nodes\Limit(Nodes::build_quoted('18446744073709551615'));
+            $o->limit = new \Pharel\Nodes\Limit(Nodes::build_quoted('18446744073709551615'));
 
         return parent::visit_Pharel_Nodes_SelectStatement($o, $collector);
     }
