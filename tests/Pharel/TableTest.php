@@ -13,16 +13,31 @@ class TableTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("foo", $join->left);
     }
 
-    public function testImplementsArrayAccess() {
-        $table = new Pharel\Table("test");
-        $this->assertTrue($table instanceof ArrayAccess);
+    public function testCreatesJoinNodes2() {
+        $join = $this->relation->create_join("foo", "bar");
+        $this->assertInstanceOf('Pharel\\Nodes\\InnerJoin', $join);
+        $this->assertEquals("foo", $join->left);
+        $this->assertEquals("bar", $join->right);
     }
 
-    public function testArrayAccess() {
-        $table = new Pharel\Table("test");
-        $attribute = $table["surname"];
+    public function testCreatesJoinNodesWithClass() {
+        $join = $this->relation->create_join("foo", "bar", "Pharel\\Nodes\\FullOuterJoin");
+        $this->assertInstanceOf('Pharel\\Nodes\\FullOuterJoin', $join);
+        $this->assertEquals("foo", $join->left);
+        $this->assertEquals("bar", $join->right);
+    }
 
-        $this->assertEquals("surname", $attribute->name);
-        $this->assertEquals($table, $attribute->relation);
+    public function testCreatesJoinNodesWithClass2() {
+        $join = $this->relation->create_join("foo", "bar", "Pharel\\Nodes\\OuterJoin");
+        $this->assertInstanceOf('Pharel\\Nodes\\OuterJoin', $join);
+        $this->assertEquals("foo", $join->left);
+        $this->assertEquals("bar", $join->right);
+    }
+
+    public function testCreatesJoinNodesWithClass3() {
+        $join = $this->relation->create_join("foo", "bar", "Pharel\\Nodes\\RightOuterJoin");
+        $this->assertInstanceOf('Pharel\\Nodes\\RightOuterJoin', $join);
+        $this->assertEquals("foo", $join->left);
+        $this->assertEquals("bar", $join->right);
     }
 }
