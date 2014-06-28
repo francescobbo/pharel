@@ -5,12 +5,15 @@ namespace Pharel;
 class SelectManager extends TreeManager {
     use Crud;
 
+    public $join_sources;
+
     public function __construct($engine, $table = null) {
         parent::__construct($engine);
         $this->ast = new Nodes\SelectStatement();
         $this->ctx = $this->ast->cores[count($this->ast->cores) - 1];
         $this->from($table);
         $this->projections = &$this->ctx->projections;
+        $this->join_sources = &$this->ctx->source->right;
     }
 
     public function __clone() {
@@ -142,7 +145,7 @@ class SelectManager extends TreeManager {
 
         $this->ctx->projections = array_merge($this->ctx->projections, array_map(function($x) {
             if (is_string($x))
-                return Nodes\SqlLiteral($x);
+                return new Nodes\SqlLiteral($x);
             else
                 return $x;
         }, $projections));
@@ -232,10 +235,6 @@ class SelectManager extends TreeManager {
         return $this;
     }
     
-    public function join_sources() {
-        return $this->ctx->source->right;
-    }
-
     public function source() {
         return $this->ctx->source;
     }
