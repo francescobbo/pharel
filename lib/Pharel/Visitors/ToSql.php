@@ -731,7 +731,7 @@ class ToSql extends Reduce
         return $this->quote($o, $this->column_for($a));
     }
 
-    public function visit_Arel_Nodes_InfixOperation($o, $collector) {
+    public function visit_Pharel_Nodes_InfixOperation($o, $collector) {
         $collector = $this->visit($o->left, $collector);
         $collector->add(" " . $o->operator . " ");
         return $this->visit($o->right, $collector);
