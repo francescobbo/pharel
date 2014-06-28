@@ -3,6 +3,8 @@
 namespace Pharel\Nodes;
 
 class TableAlias extends Binary implements \ArrayAccess {
+    public $name, $table_alias, $relation;
+
     public function __construct($name, $relation) {
         parent::__construct($name, $relation);
         
@@ -19,7 +21,7 @@ class TableAlias extends Binary implements \ArrayAccess {
     }
     
     public function engine() {
-        return $this->engine;
+        return $this->relation->engine;
     }
 
     public function offsetGet($name) {

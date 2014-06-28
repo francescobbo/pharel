@@ -154,4 +154,17 @@ class TableTest extends PHPUnit_Framework_TestCase {
         $array = [ $relation1, $relation2 ];
         $this->assertCount(1, array_unique($array, SORT_REGULAR));
     }
+
+    public function testInequality() {
+        $relation1 = new Pharel\Table("users", "vroom");
+        $relation1->aliases = [ 'a', 'b', 'c' ];
+        $relation1->table_alias = 'zomg';
+
+        $relation2 = new Pharel\Table("users", "vroom");
+        $relation2->aliases = [ 'x', 'y', 'z' ];
+        $relation2->table_alias = 'zomg';
+
+        $array = [ $relation1, $relation2 ];
+        $this->assertCount(2, array_unique($array, SORT_REGULAR));
+    }
 }
