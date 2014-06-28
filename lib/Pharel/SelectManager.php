@@ -5,8 +5,6 @@ namespace Pharel;
 class SelectManager extends TreeManager {
     use Crud;
 
-    public $projections;
-
     public function __construct($engine, $table = null) {
         parent::__construct($engine);
         $this->ast = new Nodes\SelectStatement();
