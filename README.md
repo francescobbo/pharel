@@ -96,7 +96,7 @@ $users->where($users["age"]->in([ 3, 10, 26 ]))   // WHERE `users`.`age` IN (3, 
 
 ## Status
 
-It is not unit tested and completely unstable. You should probably not use this, but please, contribute.
+It is only partially tested and you can probably find bugs easily. You should probably not use this on production systems, but please, contribute.
 
 ## License
 

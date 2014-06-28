@@ -129,4 +129,62 @@ class SelectManagerTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals("( SELECT * FROM \"users\" WHERE \"users\".\"age\" < 18 UNION ALL SELECT * FROM \"users\" WHERE \"users\".\"age\" > 99 )", $node->to_sql());
     }
+
+    public function testIntersectIntersectsTwoStatements() {
+        $node = $this->m1->intersect($this->m2);
+
+        $this->assertEquals("( SELECT * FROM \"users\" WHERE \"users\".\"age\" < 18 INTERSECT SELECT * FROM \"users\" WHERE \"users\".\"age\" > 99 )", $node->to_sql());
+    }
+
+    public function testExceptExceptsTwoStatements() {
+        $node = $this->m1->except($this->m2);
+
+        $this->assertEquals("( SELECT * FROM \"users\" WHERE \"users\".\"age\" < 18 EXCEPT SELECT * FROM \"users\" WHERE \"users\".\"age\" > 99 )", $node->to_sql());
+    }
+
+    public function testBasicWithSupport() {
+        $users = new Table("users");
+        $users_top = new Table("users_top");
+        $comments = new Table("comments");
+
+        $top = $users->project($users["id"])->where($users["karma"]->gt(100));
+        $users_as = new Nodes\_As($users_top, $top);
+        $select_manager = $comments->project(\Pharel::star())->with($users_as)
+            ->where($comments["author_id"]->in($users_top->project($users_top["id"])));
+
+        $this->assertEquals("WITH \"users_top\" AS (SELECT \"users\".\"id\" FROM \"users\" WHERE \"users\".\"karma\" > 100) SELECT * FROM \"comments\" WHERE \"comments\".\"author_id\" IN (SELECT \"users_top\".\"id\" FROM \"users_top\")", $select_manager->to_sql());
+    }
+
+    public function testWithRecursive() {
+        $comments = new Table("comments");
+        $comments_id = $comments["id"];
+        $comments_parent_id = $comments["parent_id"];
+
+        $replies = new Table("replies");
+        $replies_id = $replies["id"];
+
+        $recursive_term = new SelectManager(Table::$g_engine);
+        $recursive_term->from($comments)->project($comments_id, $comments_parent_id)->where($comments_id->eq(42));
+
+        $non_recursive_term = new SelectManager(Table::$g_engine);
+        $non_recursive_term->from($comments)->project($comments_id, $comments_parent_id)->join($replies)->on($comments_parent_id->eq($replies_id));
+
+        $union = $recursive_term->union($non_recursive_term);
+
+        $as_statement = new Nodes\_As($replies, $union);
+
+        $manager = new SelectManager(Table::$g_engine);
+        $manager->with("recursive", $as_statement)->from($replies)->project(\Pharel::star());
+
+        $sql = $manager->to_sql();
+
+        $expected = preg_replace("/\s+/", " ", "WITH RECURSIVE \"replies\" AS (
+              SELECT \"comments\".\"id\", \"comments\".\"parent_id\" FROM \"comments\" WHERE \"comments\".\"id\" = 42
+            UNION
+              SELECT \"comments\".\"id\", \"comments\".\"parent_id\" FROM \"comments\" INNER JOIN \"replies\" ON \"comments\".\"parent_id\" = \"replies\".\"id\"
+          )
+          SELECT * FROM \"replies\"");
+
+        $this->assertEquals($expected, $sql);
+    }
 }

@@ -210,9 +210,9 @@ class SelectManager extends TreeManager {
         $subqueries = func_get_args();
 
         if (is_string($subqueries[0]))
-            $node_class = "Nodes\With" . ucfirst(array_shift($subqueries));
+            $node_class = "Pharel\\Nodes\\With" . ucfirst(array_shift($subqueries));
         else
-            $node_class = "Nodes\With";
+            $node_class = "Pharel\\Nodes\\With";
       
         $this->ast->with = new $node_class($subqueries);    //$subqueries->flatten()
 

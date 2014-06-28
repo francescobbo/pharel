@@ -298,6 +298,12 @@ class ToSql extends Reduce
         return $this->infix_value($o, $collector, " UNION ALL ")->add(" )");
     }
 
+    public function visit_Pharel_Nodes_Intersect($o, $collector)
+    {
+        $collector->add("( ");
+        return $this->infix_value($o, $collector, " INTERSECT ")->add(" )");
+    }
+
     public function visit_Pharel_Nodes_Except($o, $collector)
     {
         $collector->add("( ");
@@ -669,7 +675,7 @@ class ToSql extends Reduce
         }
     }
 
-    public function visit_Pharel_Nodes_As($o, $collector) {
+    public function visit_Pharel_Nodes__As($o, $collector) {
         $collector = $this->visit($o->left, $collector);
         $collector->add(" AS ");
         return $this->visit($o->right, $collector);
@@ -806,7 +812,7 @@ class ToSql extends Reduce
         foreach ($list as $i => $x) {
             $collector = $f($collector, $x, $i);
         }
-        
+
         return $collector;
     }
 
