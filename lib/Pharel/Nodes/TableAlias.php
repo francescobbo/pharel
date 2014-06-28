@@ -2,7 +2,7 @@
 
 namespace Pharel\Nodes;
 
-class TableAlias extends Binary implements ArrayAccess {
+class TableAlias extends Binary implements \ArrayAccess {
     public function __construct($name, $relation) {
         parent::__construct($name, $relation);
         

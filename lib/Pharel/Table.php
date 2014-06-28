@@ -46,7 +46,7 @@ class Table implements \ArrayAccess {
         if (!$name)
             $name = $this->name . "_2";
 
-        $ta = Nodes\TableAlias($this, $name);
+        $ta = new Nodes\TableAlias($this, $name);
         $this->aliases[] = $ta;
 
         return $ta;
@@ -71,11 +71,15 @@ class Table implements \ArrayAccess {
     }
 
     public function group() {
-        return $this->from($this)->group(func_get_args());
+        $args = func_get_args();
+        $sm = $this->from($this);
+        return call_user_func_array([$sm, 'group'], $args);
     }
 
     public function order() {
-        return $this->from($this)->order(func_get_args());
+        $args = func_get_args();
+        $sm = $this->from($this);
+        return call_user_func_array([$sm, 'order'], $args);
     }
 
     public function where($condition) {
@@ -83,7 +87,9 @@ class Table implements \ArrayAccess {
     }
 
     public function project() {
-        return $this->from($this)->project(func_get_args());
+        $args = func_get_args();
+        $sm = $this->from($this);
+        return call_user_func_array([$sm, 'project'], $args);
     }
 
     public function take($amount) {

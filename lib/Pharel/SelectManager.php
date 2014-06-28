@@ -164,7 +164,7 @@ class SelectManager extends TreeManager {
 
         $this->ast->orders = array_merge($this->ast->orders, array_map(function($x) {
             if (is_string($x))
-                return Nodes\SqlLiteral($x);
+                return new Nodes\SqlLiteral($x);
             else
                 return $x;
         }, $expr));

@@ -213,7 +213,7 @@ class ToSql extends Reduce
             }
         }
 
-        if ($o->source && !empty($o->source)) {
+        if ($o->source && !$o->source->_empty()) {
             $collector->add(" FROM ");
             $collector = $this->visit($o->source, $collector);
         }

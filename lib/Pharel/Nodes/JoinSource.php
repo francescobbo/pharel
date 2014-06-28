@@ -8,7 +8,6 @@ class JoinSource extends Binary {
     }
      
     public function _empty() {
-     	return !$this->left and empty($this->right);
+     	return is_null($this->left) and empty($this->right);
     }
 }
-
