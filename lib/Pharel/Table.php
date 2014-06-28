@@ -8,6 +8,9 @@ class Table implements \ArrayAccess {
 
     public static $g_engine;
     public $name, $engine, $aliases, $table_alias;
+    public $table_name;
+    public $columns;
+    public $primary_key;
 
     public function __construct($table_name, $engine = null) {
         if (self::$g_engine === null)
@@ -28,7 +31,7 @@ class Table implements \ArrayAccess {
         if (is_array($engine)) {
             $this->engine = isset($engine["engine"]) ? $engine["engine"] : self::$g_engine;
             if (isset($engine["as"]) and $engine["as"] != $this->name)
-                $this->table_alias = $enigne["as"];
+                $this->table_alias = $engine["as"];
         }
     }
 

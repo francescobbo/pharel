@@ -167,4 +167,24 @@ class TableTest extends PHPUnit_Framework_TestCase {
         $array = [ $relation1, $relation2 ];
         $this->assertCount(2, array_unique($array, SORT_REGULAR));
     }
+
+    public function testConstructorAcceptsEngine() {
+        $rel = new Pharel\Table("users", "foo");
+        $this->assertEquals("foo", $rel->engine);
+    }
+
+    public function testConstructorAcceptsHash() {
+        $rel = new Pharel\Table("users", [ "engine" => "foo" ]);
+        $this->assertEquals("foo", $rel->engine);
+    }
+
+    public function testConstructorIgnoresAsIfEqualsName() {
+        $rel = new Pharel\Table("users", [ "as" => "users" ]);
+        $this->assertNull($rel->table_alias);
+    }
+
+    public function testConstructorAcceptsAsIfNotEqualsName() {
+        $rel = new Pharel\Table("users", [ "as" => "foo" ]);
+        $this->assertEquals("foo", $rel->table_alias);
+    }
 }
