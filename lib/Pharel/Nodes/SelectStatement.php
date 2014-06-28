@@ -28,4 +28,3 @@ class SelectStatement extends Node {
         $this->orders  = array_map(function($x) { return clone $x; }, $this->orders);
     }
 }
-

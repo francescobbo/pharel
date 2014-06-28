@@ -19,4 +19,13 @@ class Node {
     public function _and($right) {
         return new _And([ $this, $right ]);
     }
+
+    public function to_sql($engine = null) {
+        if ($engine === null)
+            $engine = \Pharel\Table::$g_engine;
+
+        $collector = new \Pharel\Collectors\SQLString();
+        $collector = $engine->connection->visitor->accept($this, $collector);
+        return $collector->value();
+    }
 }

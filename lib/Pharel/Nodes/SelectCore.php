@@ -36,10 +36,13 @@ class SelectCore extends Node {
         if ($this->having)
             $this->having = clone $this->having;
 
-        $this->projections  = array_map(function($x) { return clone $x; }, $this->projections);
+        $this->projections = array_map(function($x) { return clone $x; }, $this->projections);
         $this->wheres  = array_map(function($x) { return clone $x; }, $this->wheres);
         $this->groups  = array_map(function($x) { return clone $x; }, $this->groups);
         $this->windows  = array_map(function($x) { return clone $x; }, $this->windows);
+
+        $this->from = &$this->source;
+        $this->froms = &$this->source;
     }
 }
 

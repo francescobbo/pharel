@@ -6,6 +6,7 @@ class SelectManager extends TreeManager {
     use Crud;
 
     public $join_sources;
+    public $projections;
 
     public function __construct($engine, $table = null) {
         parent::__construct($engine);
@@ -19,6 +20,8 @@ class SelectManager extends TreeManager {
     public function __clone() {
         parent::__clone();
         $this->ctx = clone $this->ast->cores[count($this->ast->cores) - 1];
+        $this->projections = &$this->ctx->projections;
+        $this->join_sources = &$this->ctx->source->right;
     }
 
     public function limit() {
@@ -34,13 +37,6 @@ class SelectManager extends TreeManager {
 
     public function constraints() {
         return $this->ctx->wheres;
-    }
-
-    public function offset() {
-        if ($this->ast->offset)
-            return $this->ast->offset->expr;
-        else
-            return null;
     }
 
     public function skip($amount) {
@@ -189,10 +185,10 @@ class SelectManager extends TreeManager {
 
     public function union($operation, $other = null) {
         if ($other !== null)
-            $node_class = "Nodes\Union" . ucfirst($operation);
+            $node_class = "Pharel\\Nodes\\Union" . ucfirst($operation);
         else {
             $other = $operation;
-            $node_class = "Nodes\Union";
+            $node_class = "Pharel\\Nodes\\Union";
         }
       
         return new $node_class($this->ast, $other->ast);
@@ -237,6 +233,18 @@ class SelectManager extends TreeManager {
     
     public function source() {
         return $this->ctx->source;
+    }
+
+    public function __get($var) {
+        switch ($var) {
+            case "offset":
+                if ($this->ast->offset)
+                    return $this->ast->offset->expr;
+                else
+                    return null;
+            default:
+                throw new \Exception("cannot get");
+        }
     }
 
     public function __set($var, $val) {
