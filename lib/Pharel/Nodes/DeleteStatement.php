@@ -3,6 +3,8 @@
 namespace Pharel\Nodes;
 
 class DeleteStatement extends Binary {
+    public $relation, $wheres;
+
     public function __construct($relation = null, $wheres = []) {
         parent::__construct($relation, $wheres);
         

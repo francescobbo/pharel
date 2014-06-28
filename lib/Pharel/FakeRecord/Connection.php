@@ -80,8 +80,8 @@ class Connection {
             return "'t'";
         else if ($thing === false)
             return "'f'";
-        else if ($thing instanceof \DateTimeInterface)
-            return "'{$thing->format("Y-m-d H:i:s")}'";
+        else if ($thing instanceof \DateTime)
+            return "'" . $thing->format("Y-m-d H:i:s") . "'";
         else {
             $thing = str_replace("'", "\\\\'", $thing);
             return "'{$thing}'";

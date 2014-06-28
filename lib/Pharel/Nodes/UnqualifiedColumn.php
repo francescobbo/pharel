@@ -3,7 +3,7 @@
 namespace Pharel\Nodes;
 
 class UnqualifiedColumn extends Unary {
-    public $name, $relation, $column;
+    public $name, $relation, $column, $attribute;
 
     public function __construct($expr) {
         parent::__construct($expr);
