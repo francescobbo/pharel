@@ -738,19 +738,19 @@ class ToSql extends Reduce
     }
 
     public function visit_Pharel_Nodes_Addition($o, $collector) {
-        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+        return $this->visit_Pharel_Nodes_InfixOperation($o, $collector);
     }
 
     public function visit_Pharel_Nodes_Subtraction($o, $collector) {
-        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+        return $this->visit_Pharel_Nodes_InfixOperation($o, $collector);
     }
 
     public function visit_Pharel_Nodes_Multiplication($o, $collector) {
-        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+        return $this->visit_Pharel_Nodes_InfixOperation($o, $collector);
     }
 
     public function visit_Pharel_Nodes_Division($o, $collector) {
-        return $this->visit_Pharel_NodesInfixOperation($o, $collector);
+        return $this->visit_Pharel_Nodes_InfixOperation($o, $collector);
     }
 
     public function visit_array($o, $collector) {
