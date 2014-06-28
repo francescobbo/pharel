@@ -1,6 +1,6 @@
 tools:
     php_code_coverage:
-      test_command: phpunit ./tests --bootstrap vendor/autoload.php
+      test_command: phpunit --bootstrap vendor/autoload.php ./tests
 
 before_commands:
     - "composer install --no-dev --prefer-source"
