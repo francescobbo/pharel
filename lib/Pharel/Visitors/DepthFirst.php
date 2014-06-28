@@ -54,16 +54,16 @@ class DepthFirst extends Visitor {
         return null;
     }
 
-    public function visit_Arel_Nodes_StringJoin($o) {
+    public function visit_Pharel_Nodes_StringJoin($o) {
         return $this->visit($o->left);
     }
 
-    public function visit_Arel_Attribute($o) {
+    public function visit_Pharel_Attribute($o) {
         $this->visit($o->relation);
         return $this->visit($o->name);
     }
 
-    public function visit_Arel_Table($o) {
+    public function visit_Pharel_Table($o) {
         return $this->visit($o->name);
     }
 
@@ -71,13 +71,13 @@ class DepthFirst extends Visitor {
         return null;
     }
 
-    public function visit_Arel_Nodes_InsertStatement($o) {
+    public function visit_Pharel_Nodes_InsertStatement($o) {
         $this->visit($o->relation);
         $this->visit($o->columns);
         return $this->visit($o->values);
     }
 
-    public function visit_Arel_Nodes_SelectCore($o) {
+    public function visit_Pharel_Nodes_SelectCore($o) {
         $this->visit($o->projections);
         $this->visit($o->source);
         $this->visit($o->wheres);
@@ -86,7 +86,7 @@ class DepthFirst extends Visitor {
         return $this->visit($o->having);
     }
 
-    public function visit_Arel_Nodes_SelectStatement($o) {
+    public function visit_Pharel_Nodes_SelectStatement($o) {
         $this->visit($o->cores);
         $this->visit($o->orders);
         $this->visit($o->limit);
@@ -94,7 +94,7 @@ class DepthFirst extends Visitor {
         return $this->visit($o->offset);
     }
 
-    public function visit_Arel_Nodes_UpdateStatement($o) {
+    public function visit_Pharel_Nodes_UpdateStatement($o) {
         $this->visit($o->relation);
         $this->visit($o->values);
         $this->visit($o->wheres);
