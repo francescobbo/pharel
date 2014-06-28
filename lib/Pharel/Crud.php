@@ -3,6 +3,9 @@
 namespace Pharel;
 
 trait Crud {
+    public $engine, $ast, $wheres;
+    protected $ctx;
+
     public function compile_update($values, $pk) {
         $um = new UpdateManager($this->engine);
 
