@@ -2,7 +2,7 @@
     "name": "aomega/pharel",
     "description": "A Relational Algebra for PHP, based on rails/arel",
     "license": "MIT",
-    "version": "0.1.0",
+    "version": "0.7.0",
     "authors": [
         {
             "name": "Francesco Boffa",
@@ -11,7 +11,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.4.0"
     },
     "autoload": {
         "psr-0": {
