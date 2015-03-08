@@ -8,7 +8,8 @@ class Nodes {
             $other instanceof Attribute or
             $other instanceof Table or
             $other instanceof Nodes\BindParam or
-            $other instanceof SelectManager) {
+            $other instanceof SelectManager or
+            $other instanceof Nodes\Quoted) {
             return $other;
         } else {
             if ($attribute instanceof \Pharel\Attribute)

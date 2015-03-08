@@ -19,10 +19,6 @@ class TableAlias extends Binary implements \ArrayAccess {
         else
             return $this->name;
     }
-    
-    public function engine() {
-        return $this->relation->engine;
-    }
 
     public function offsetGet($name) {
         return new \Pharel\Attribute($this, $name);
@@ -39,5 +35,14 @@ class TableAlias extends Binary implements \ArrayAccess {
     public function offsetUnset($offset) {
         throw new \Exception("Cannot unset an attribute!");
     }
+
+    public function type_cast_for_database() {
+        call_user_func_array([ $this->relation, 'type_cast_for_database' ], func_get_args());
+    }
+
+    public function able_to_type_cast() {
+        $relation->able_to_type_cast();
+    }
+}
 }
 

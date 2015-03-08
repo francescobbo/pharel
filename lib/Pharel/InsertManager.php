@@ -3,8 +3,8 @@
 namespace Pharel;
 
 class InsertManager extends TreeManager {
-    public function __construct($engine) {
-        parent::__construct($engine);
+    public function __construct() {
+        parent::__construct();
         $this->ast = new Nodes\InsertStatement();
     }
 

@@ -2,5 +2,5 @@
 
 namespace Pharel\Nodes;
 
-class DoesNotMatch extends Binary {
+class DoesNotMatch extends Matches {
 }

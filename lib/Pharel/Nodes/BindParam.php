@@ -2,5 +2,5 @@
 
 namespace Pharel\Nodes;
 
-class BindParam extends SqlLiteral {
+class BindParam extends Node {
 }

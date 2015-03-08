@@ -68,10 +68,6 @@ class MySQL extends ToSql {
             $collector = $this->inject_join($o->orders, $collector, ', ');
         }
 
-        if (!is_null($o->limit)) {
-            $collector->add(" ");
-            return $this->visit($o->limit, $collector);
-        } else
-            return $collector;
+        return $this->maybe_visit($o->limit, $collector);
     }
 }

@@ -4,7 +4,7 @@ namespace Pharel;
 
 trait Predications {
     public function not_eq($other) {
-        return new Nodes\NotEqual($this, Nodes::build_quoted($other, $this));
+        return new Nodes\NotEqual($this, $this->quoted_node($other));
     }
 
     public function not_eq_any($others) {
@@ -16,7 +16,7 @@ trait Predications {
     }
 
     public function eq($other) {
-        return new Nodes\Equality($this, Nodes::build_quoted($other, $this));
+        return new Nodes\Equality($this, $this->quoted_node($other));
     }
 
     public function eq_any($others) {
@@ -24,20 +24,23 @@ trait Predications {
     }
 
     public function eq_all($others) {
-        return $this->grouping_all("eq", array_map(function($x) {
-            return Nodes::build_quoted($x, $this);
-        }, $others));
+        return $this->grouping_all("eq", $this->quoted_array($others));
+    }
+
+    public function between($begin, $end) {
+        $left = $this->quoted_node($begin);
+        $left = $this->quoted_node($end);
+
+        return new Nodes\Between($this, $left->and($right));
     }
 
     public function in($other) {
         if ($other instanceof SelectManager)
             return new Nodes\In($this, $other->ast);
         else if (is_array($other)) {
-            return new Nodes\In($this, array_map(function ($x) {
-                return Nodes::build_quoted($x);
-            }, $other));
+            return new Nodes\In($this, $this->quoted_array($other));
         } else
-            return new Nodes\In($this, Nodes::build_quoted($other, $this));
+            return new Nodes\In($this, $this->quoted_node($other));
     }
 
     public function in_any($others) {
@@ -52,11 +55,9 @@ trait Predications {
         if ($other instanceof SelectManager)
             return new Nodes\NotIn($this, $other->ast);
         else if (is_array($other)) {
-            return new Nodes\NotIn($this, array_map(function ($x) {
-                return Nodes::build_quoted($x);
-            }, $other));
+            return new Nodes\NotIn($this, $this->quoted_array($other));
         } else
-            return new Nodes\NotIn($this, Nodes::build_quoted($other, $this));
+            return new Nodes\NotIn($this, $this->quoted_node($other));
     }
 
     public function not_in_any($others) {
@@ -67,32 +68,32 @@ trait Predications {
         return $this->grouping_all("not_in", $others);
     }
 
-    public function matches($other) {
-        return new Nodes\Matches($this, Nodes::build_quoted($other, $this));
+    public function matches($other, $escape = null) {
+        return new Nodes\Matches($this, $this->quoted_node($other), $escape);
     }
 
-    public function matches_any($others) {
-        return $this->grouping_any("matches", $others);
+    public function matches_any($others, $escape = null) {
+        return $this->grouping_any("matches", $others, $escape);
     }
 
-    public function matches_all($others) {
-        return $this->grouping_all("matches", $others);
+    public function matches_all($others, $escape = null) {
+        return $this->grouping_all("matches", $others, $escape);
     }
 
-    public function does_not_match($other) {
-        return new Nodes\DoesNotMatch($this, Nodes::build_quoted($other, $this));
+    public function does_not_match($other, $escape = null) {
+        return new Nodes\DoesNotMatch($this, $this->quoted_node($other), $escape);
     }
 
-    public function does_not_match_any($others) {
-        return $this->grouping_any("does_not_match", $others);
+    public function does_not_match_any($others, $escape = null) {
+        return $this->grouping_any("does_not_match", $others, $escape);
     }
 
-    public function does_not_match_all($others) {
-        return $this->grouping_all("does_not_match", $others);
+    public function does_not_match_all($others, $escape = null) {
+        return $this->grouping_all("does_not_match", $others, $escape);
     }
 
     public function gteq($right) {
-        return new Nodes\GreaterThanOrEqual($this, Nodes::build_quoted($right, $this));
+        return new Nodes\GreaterThanOrEqual($this, $this->quoted_node($right));
     }
 
     public function gteq_any($others) {
@@ -104,7 +105,7 @@ trait Predications {
     }
 
     public function lteq($right) {
-        return new Nodes\LessThanOrEqual($this, Nodes::build_quoted($right, $this));
+        return new Nodes\LessThanOrEqual($this, $this->quoted_node($right));
     }
 
     public function lteq_any($others) {
@@ -116,7 +117,7 @@ trait Predications {
     }
 
     public function gt($right) {
-        return new Nodes\GreaterThan($this, Nodes::build_quoted($right, $this));
+        return new Nodes\GreaterThan($this, $this->quoted_node($right));
     }
 
     public function gt_any($others) {
@@ -128,7 +129,7 @@ trait Predications {
     }
 
     public function lt($right) {
-        return new Nodes\LessThan($this, Nodes::build_quoted($right, $this));
+        return new Nodes\LessThan($this, $this->quoted_node($right));
     }
 
     public function lt_any($others) {
@@ -139,9 +140,9 @@ trait Predications {
         return $this->grouping_all("lt", $others);
     }
 
-    private function grouping_any($method_id, $others) {
+    private function grouping_any($method_id, $others, $extras = null) {
         $nodes = array_map(function($expr) use($method_id) {
-            call_user_func([ $this, $method_id ], $expr);
+            call_user_func([ $this, $method_id ], $expr, $extras);
         }, $others);
 
         $memo = array_shift($nodes);
@@ -152,9 +153,19 @@ trait Predications {
         return new Nodes\Grouping($memo);
     }
 
-    private function grouping_all($method_id, $others) {
+    private function grouping_all($method_id, $others, $extras = null) {
         return new Nodes\Grouping(new Nodes\_And(array_map(function($expr) use($method_id) {
-            call_user_func([ $this, $method_id ], $expr);
+            call_user_func([ $this, $method_id ], $expr, $extras);
         }, $others)));
+    }
+
+    private function quoted_node($other) {
+        return Nodes::build_quoted($other, $this);
+    }
+
+    private function quoted_array($others) {
+        return array_map(function($v) {
+            return $this->quoted_node($v);
+        }, $others);
     }
 }

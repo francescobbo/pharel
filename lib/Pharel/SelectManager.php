@@ -8,8 +8,8 @@ class SelectManager extends TreeManager {
     public $join_sources;
     public $projections;
 
-    public function __construct($engine, $table = null) {
-        parent::__construct($engine);
+    public function __construct($table = null) {
+        parent::__construct();
         $this->ast = new Nodes\SelectStatement();
         $this->ctx = $this->ast->cores[count($this->ast->cores) - 1];
         $this->from($table);
@@ -124,9 +124,8 @@ class SelectManager extends TreeManager {
         return $this->join($relation, "Nodes\\OuterJoin");
     }
 
-    public function having() {
-        $exprs = func_get_args();
-        $this->ctx->having = new Nodes\Having($this->collapse($exprs, $this->ctx->having));
+    public function having($expr) {
+        $this->ctx->havings[] = $expr;
         return $this;
     }
 
@@ -158,6 +157,15 @@ class SelectManager extends TreeManager {
         return $this;
     }
 
+    public function distinct_on($value) {
+        if ($value)
+            $this->ctx->set_quantifier = new Nodes\DistinctOn($value);
+        else
+            $this->ctx->set_quantifier = null;
+
+        return $this;
+    }
+
     public function order() {
         $expr = func_get_args();
 
@@ -175,11 +183,11 @@ class SelectManager extends TreeManager {
         return $this->ast->orders;
     }
 
-    public function where_sql() {
+    public function where_sql($engine = Table::$g_engine) {
         if (empty($this->ctx->wheres))
             return null;
 
-        $viz = new Visitors\WhereSql($this->engine->connection);
+        $viz = new Visitors\WhereSql($engine->connection);
         return new Nodes\SqlLiteral($viz->accept($this->ctx, new Collectors\SQLString())->value);
     }
 

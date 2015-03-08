@@ -3,22 +3,13 @@
 namespace Pharel\Nodes;
 
 class Extract extends Unary {
+    use \Pharel\AliasPredication;
     use \Pharel\Predications;
 
     public $field;
-    public $alias;
 
-    public function __construct($expr, $field, $aliaz = null) {
+    public function __construct($expr, $field) {
         parent::__construct($expr);
         $this->field = $field;
-        if (!is_null($aliaz))
-            $this->alias = new SqlLiteral($aliaz);
-        else
-            $this->alias = null;
-    }
-
-    public function _as($aliaz) {
-        $this->alias = new SqlLiteral($aliaz);
-        return $this;
     }
 }

@@ -8,7 +8,7 @@ class SelectCore extends Node {
     public $wheres;
     public $groups;
     public $windows;
-    public $having;
+    public $havings;
     public $source;
     public $set_quantifier;
     public $from, $froms;
@@ -23,7 +23,7 @@ class SelectCore extends Node {
         $this->projections    = [];
         $this->wheres         = [];
         $this->groups         = [];
-        $this->having         = null;
+        $this->havings        = [];
         $this->windows        = [];
         
         $this->from = &$this->source;
@@ -33,12 +33,11 @@ class SelectCore extends Node {
     public function __clone() {
         if ($this->source)
             $this->source = clone $this->source;
-        if ($this->having)
-            $this->having = clone $this->having;
 
         $this->projections = array_map(function($x) { return clone $x; }, $this->projections);
         $this->wheres  = array_map(function($x) { return clone $x; }, $this->wheres);
         $this->groups  = array_map(function($x) { return clone $x; }, $this->groups);
+        $this->havings  = array_map(function($x) { return clone $x; }, $this->havings);
         $this->windows  = array_map(function($x) { return clone $x; }, $this->windows);
 
         $this->from = &$this->source;

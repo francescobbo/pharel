@@ -4,7 +4,7 @@ namespace Pharel;
 
 trait Crud {
     public function compile_update($values, $pk) {
-        $um = new UpdateManager($this->engine);
+        $um = new UpdateManager();
 
         if ($values instanceof Nodes\SqlLiteral)
             $relation = $this->ctx->from;
@@ -28,11 +28,13 @@ trait Crud {
     }
 
     public function create_insert() {
-        return new InsertManager($this->engine);
+        return new InsertManager();
     }
 
     public function compile_delete() {
-        $dm = new DeleteManager($this->engine);
+        $dm = new DeleteManager();
+        if ($this->ast->limit)
+            $dm->take($this->ast->limit->expr);
         $dm->wheres = $this->ctx->wheres;
         $dm->from($this->ctx->froms);
         return $dm;

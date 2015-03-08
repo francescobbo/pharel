@@ -7,8 +7,8 @@ namespace Pharel;
  * @property mixed $wheres alias for $ast->wheres
  */
 class UpdateManager extends TreeManager {
-    public function __construct($engine) {
-        parent::__construct($engine);
+    public function __construct() {
+        parent::__construct();
         $this->ast = new Nodes\UpdateStatement();
         $this->ctx = $this->ast;
     }

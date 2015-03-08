@@ -6,28 +6,22 @@ class TreeManager {
     use FactoryMethods;
 
     public $ast;
-    public $engine;
     public $bind_values;
 
     protected $ctx;
 
-    public function __construct($engine) {
-        $this->engine = $engine;
+    public function __construct() {
         $this->ctx = null;
         $this->bind_values = [];
-    }
-
-    public function visitor() {
-        return $this->engine->connection->visitor;
     }
 
     public function to_dot() {
 
     }
 
-    public function to_sql() {
+    public function to_sql($engine = Table::$g_engine) {
         $collector = new Collectors\SQLString();
-        $collector = $this->visitor()->accept($this->ast, $collector);
+        $collector = $engine->connection->visitor()->accept($this->ast, $collector);
         return $collector->str;
     }
 

@@ -3,8 +3,8 @@
 namespace Pharel;
 
 class DeleteManager extends TreeManager {
-    public function __construct($engine) {
-        parent::__construct($engine);
+    public function __construct() {
+        parent::__construct();
         $this->ast = new Nodes\DeleteStatement;
         $this->ctx = $this->ast;
     }
@@ -12,6 +12,11 @@ class DeleteManager extends TreeManager {
     public function from($relation) {
         $this->ast->relation = $relation;
         return $this;
+    }
+
+    public function take($limit) {
+        if ($limit)
+            $this->ast->limit = new Nodes\Limit(Nodes::build_quoted($limit));
     }
 
     public function __set($var, $val) {

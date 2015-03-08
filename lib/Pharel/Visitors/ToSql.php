@@ -13,14 +13,12 @@ class ToSql extends Reduce
     const _AND = ' AND ';
     const DISTINCT = 'DISTINCT';
 
-    protected $connection, $schema_cache, $quoted_tables, $quoted_columns;
+    protected $connection;
 
     public function __construct($connection)
     {
+        parent::__construct();
         $this->connection = $connection;
-        $this->schema_cache   = $connection->schema_cache();
-        $this->quoted_tables = [];
-        $this->quoted_columns = [];
     }
 
     public function visit_Pharel_Nodes_DeleteStatement($o, $collector)
@@ -29,9 +27,10 @@ class ToSql extends Reduce
         $collector = $this->visit($o->relation, $collector);
         if (count($o->wheres) > 0) {
             $collector->add(" WHERE ");
-            return $this->inject_join($o->wheres, $collector, self::_AND);
-        } else
-            return $collector;
+            $collector = $this->inject_join($o->wheres, $collector, self::_AND);
+        }
+        
+        return $this->maybe_visit($o->limit, $collector);
     }
 
     public function visit_Pharel_Nodes_UpdateStatement($o, $collector)
@@ -113,7 +112,7 @@ class ToSql extends Reduce
 
     public function table_exists($name)
     {
-        return $this->schema_cache->table_exists($name);
+        return $this->schema_cache()->table_exists($name);
     }
 
     public function column_for($attr)
@@ -132,7 +131,7 @@ class ToSql extends Reduce
 
     public function column_cache($table)
     {
-        return $this->schema_cache->columns_hash($table);
+        return $this->schema_cache()->columns_hash($table);
     }
 
     public function visit_Pharel_Nodes_Values($o, $collector)
@@ -142,7 +141,8 @@ class ToSql extends Reduce
         $len = count($o->expressions) - 1;
 
         foreach ($o->expressions as $i => $value) {
-            if ($value instanceof \Pharel\Nodes\SqlLiteral)
+            if ($value instanceof \Pharel\Nodes\SqlLiteral ||
+                $value instanceof \Pharel\Nodes\BindParam)
                 $collector = $this->visit($value, $collector);
             else
                 $collector->add($this->quote($value, $o->columns[$i] && $this->column_for($o->columns[$i])));
@@ -170,7 +170,6 @@ class ToSql extends Reduce
         }
 
         if (!empty($o->orders)) {
-            $collector->add(self::SPACE);
             $collector->add(self::ORDER_BY);
             $len = count($o->orders) - 1;
 
@@ -192,15 +191,8 @@ class ToSql extends Reduce
     {
         $collector->add("SELECT");
 
-        if ($o->top) {
-            $collector->add(" ");
-            $collector = $this->visit($o->top, $collector);
-        }
-
-        if ($o->set_quantifier) {
-            $collector->add(" ");
-            $collector = $this->visit($o->set_quantifier, $collector);
-        }
+        $collector = $this->maybe_visit($o->top, $collector);
+        $collector = $this->maybe_visit($o->set_quantifier, $collector);
 
         if (!empty($o->projections)) {
             $collector->add(" ");
@@ -240,9 +232,9 @@ class ToSql extends Reduce
             }
         }
 
-        if ($o->having) {
-            $collector->add(" ");
-            $collector = $this->visit($o->having, $collector);
+        if (!empty($o->havings)) {
+            $collector->add(" HAVING ");
+            $collector = $this->inject_join($o->havings, $collector, self::AND);
         }
 
         if (!empty($o->windows)) {
@@ -396,11 +388,6 @@ class ToSql extends Reduce
             return $this->infix_value($o, $collector, " OVER ");
     }
 
-    public function visit_Pharel_Nodes_Having($o, $collector) {
-        $collector->add("HAVING ");
-        return $this->visit($o->expr, $collector);
-    }
-
     public function visit_Pharel_Nodes_Offset($o, $collector) {
         $collector->add("OFFSET ");
         return $this->visit($o->expr, $collector);
@@ -420,8 +407,12 @@ class ToSql extends Reduce
     }
 
     public function visit_Pharel_Nodes_Grouping($o, $collector) {
-        $collector->add("(");
-        return $this->visit($o->expr, $collector)->add(")");
+        if ($o->expr instanceof Nodes\Grouping)
+            return $this->visit($o->expr, $collector);
+        else {
+            $collector->add("(");
+            return $this->visit($o->expr, $collector)->add(")");
+        }
     }
 
     public function visit_Pharel_SelectManager($o, $collector) {
@@ -456,13 +447,7 @@ class ToSql extends Reduce
 
     public function visit_Pharel_Nodes_Extract($o, $collector) {
         $collector->add("EXTRACT(" . strtoupper($o->field) . " FROM ");
-        $collector = $this->visit($o->expr, $collector)->add(")");
-
-        if ($o->alias) {
-            $collector->add(" AS ");
-            return $this->visit($o->alias, $collector);
-        } else
-            return $collector;
+        return $this->visit($o->expr, $collector)->add(")");
     }
 
     public function visit_Pharel_Nodes_Count($o, $collector) {
@@ -524,13 +509,25 @@ class ToSql extends Reduce
     public function visit_Pharel_Nodes_Matches($o, $collector) {
         $collector = $this->visit($o->left, $collector);
         $collector->add(" LIKE ");
-        return $this->visit($o->right, $collector);
+        $collector = $this->visit($o->right, $collector);
+
+        if ($o->escape) {
+            $collector->add(" ESCAPE ")
+            return $collector->visit($o->escape, $collector);
+        } else
+            return $collector;
     }
 
     public function visit_Pharel_Nodes_DoesNotMatch($o, $collector) {
         $collector = $this->visit($o->left, $collector);
         $collector->add(" NOT LIKE ");
-        return $this->visit($o->right, $collector);
+        $collector = $this->visit($o->right, $collector);
+
+        if ($o->escape) {
+            $collector->add(" ESCAPE ")
+            return $collector->visit($o->escape, $collector);
+        } else
+            return $collector;
     }
 
     public function visit_Pharel_Nodes_JoinSource($o, $collector) {
@@ -718,7 +715,7 @@ class ToSql extends Reduce
     }
 
     public function visit_Pharel_Nodes_BindParam($o, $collector) {
-        return $collector->add_bind($o);
+        return $collector->add_bind($o, function($o) { return "?"; });
     }
 
     public function visit_Pharel_Nodes_SqlLiteral($o, $collector) {
@@ -734,7 +731,11 @@ class ToSql extends Reduce
     }
 
     public function quoted($o, $a) {
-        return $this->quote($o, $this->column_for($a));
+        if ($a !== null and $a->able_to_type_cast()) {
+            return $this->quote($a->type_cast_for_database($o));
+        } else {
+            return $this->quote($o, $this->column_for($a));
+        }
     }
 
     public function visit_Pharel_Nodes_InfixOperation($o, $collector) {
@@ -770,25 +771,22 @@ class ToSql extends Reduce
         return $this->connection->quote($value, $column);
     }
 
+    private function schema_cache() {
+        $this->connection->schema_cache;
+    }
+
     private function quote_table_name($name) {
         if ($name instanceof \Pharel\Nodes\SqlLiteral)
             return $name;
 
-        if (!isset($this->quoted_tables[$name]))
-            $this->quoted_tables[$name] = $this->connection->quote_table_name($name);
-
-        return $this->quoted_tables[$name];
+        return $this->connection->quote_table_name($name);
     }
 
     private function quote_column_name($name) {
-        if (!isset($this->quoted_columns[$name])) {
-            if ($name instanceof \Pharel\Nodes\SqlLiteral)
-                $this->quoted_columns[$name->value] = $name;
-            else
-                $this->quoted_columns[$name] = $this->connection->quote_column_name($name);
-        }
-
-        return $this->quoted_columns[$name];
+        if ($name instanceof \Pharel\Nodes\SqlLiteral)
+            return $name;
+        
+        return $this->connection->quote_column_name($name);
     }
 
     public function maybe_visit($thing, $collector) {

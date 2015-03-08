@@ -10,6 +10,8 @@ class DepthFirst extends Visitor {
             $this->block = $block;
         else
             $this->block = function($o){};
+
+        parent::__construct();
     }
 
     public function visit($o) {
@@ -83,7 +85,7 @@ class DepthFirst extends Visitor {
         $this->visit($o->wheres);
         $this->visit($o->groups);
         $this->visit($o->windows);
-        return $this->visit($o->having);
+        return $this->visit($o->havings);
     }
 
     public function visit_Pharel_Nodes_SelectStatement($o) {
@@ -276,9 +278,13 @@ class DepthFirst extends Visitor {
 		return $this->binary($o);
 	}
 
-	public function visit_Pharel_Nodes_Values($o) {
-		return $this->binary($o);
-	}
+  public function visit_Pharel_Nodes_Values($o) {
+    return $this->binary($o);
+  }
+
+  public function visit_Pharel_Nodes_Union($o) {
+    return $this->binary($o);
+  }
 
 	public function visit_Pharel_Attributes_Integer($o) {
 		return $this->visit_Pharel_Attribute($o);
@@ -332,9 +338,17 @@ class DepthFirst extends Visitor {
 		return $this->terminal($o);
 	}
 
-	public function visit_Pharel_Nodes_Window($o) {
-		return $this->terminal($o);
-	}
+  public function visit_Pharel_Nodes_Window($o) {
+    return $this->terminal($o);
+  }
+
+  public function visit_Pharel_Nodes_True($o) {
+    return $this->terminal($o);
+  }
+
+  public function visit_Pharel_Nodes_False($o) {
+    return $this->terminal($o);
+  }
 
 	public function visit_BigDecimal($o) {
 		return $this->terminal($o);

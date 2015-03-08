@@ -10,14 +10,11 @@ class Table implements \ArrayAccess {
     public $name, $engine, $aliases, $table_alias;
     public $table_name;
     public $columns;
-    public $primary_key;
+    public $type_caster;
 
-    public function __construct($table_name, $engine = null) {
+    public function __construct($table_name, $as = null, $type_caster = null) {
         if (self::$g_engine === null)
             self::$g_engine = new FakeRecord\ConnectionPool;
-
-        if ($engine === null)
-            $engine = self::$g_engine;
 
         $this->table_name = &$this->name;
         $this->table_name = $table_name;
@@ -26,23 +23,11 @@ class Table implements \ArrayAccess {
         $this->columns = null;
         $this->aliases = [];
         $this->table_alias = null;
-        $this->primary_key = null;
+        $this->type_caster = $type_caster;
 
-        if (is_array($engine)) {
-            $this->engine = isset($engine["engine"]) ? $engine["engine"] : self::$g_engine;
-            if (isset($engine["as"]) and $engine["as"] != $this->name)
-                $this->table_alias = $engine["as"];
+        if ($as != $this->name)
+            $this->table_alias = $as;
         }
-    }
-
-    public function primary_key() {
-        if (!$this->primary_key) {
-            $primary_key_name = $this->engine->connection->primary_key($this->name);
-            if ($primary_key_name)
-                $this->primary_key = $this[$primary_key_name];
-        }
-
-        return $this->primary_key;
     }
 
     public function alias($name = null) {
@@ -55,18 +40,26 @@ class Table implements \ArrayAccess {
         return $ta;
     }
 
-    public function from($table) {
-        return new SelectManager($this->engine, $table);
+    public function type_cast_for_database($attribute_name, $value) {
+        return $this->type_caster->type_cast_for_database($attribute_name, $value);
+    }
+
+    public function able_to_type_cast() {
+        return !is_null($type_caster);
+    }
+
+    public function from() {
+        return new SelectManager($this);
     }
 
     public function join($relation, $klass = "\\Pharel\\Nodes\\InnerJoin") {
         if (!$relation)
-            return $this->from($this);
+            return $this->from();
 
         if (is_string($relation) or $relation instanceof Nodes\SqlLiteral)
             $klass = "\\Pharel\\Nodes\\StringJoin";
 
-        return $this->from($this)->join($relation, $klass);
+        return $this->from()->join($relation, $klass);
     }
 
     public function outer_join($relation) {
@@ -75,52 +68,36 @@ class Table implements \ArrayAccess {
 
     public function group() {
         $args = func_get_args();
-        $sm = $this->from($this);
+        $sm = $this->from();
         return call_user_func_array([$sm, 'group'], $args);
     }
 
     public function order() {
         $args = func_get_args();
-        $sm = $this->from($this);
+        $sm = $this->from();
         return call_user_func_array([$sm, 'order'], $args);
     }
 
     public function where($condition) {
-        return $this->from($this)->where($condition);
+        return $this->from()->where($condition);
     }
 
     public function project() {
         $args = func_get_args();
-        $sm = $this->from($this);
+        $sm = $this->from();
         return call_user_func_array([$sm, 'project'], $args);
     }
 
     public function take($amount) {
-        return $this->from($this)->take($amount);
+        return $this->from()->take($amount);
     }
 
     public function skip($amount) {
-        return $this->from($this)->skip($amount);
+        return $this->from()->skip($amount);
     }
 
     public function having($expr) {
-        return $this->from($this)->having($expr);
-    }
-
-    public function select_manager() {
-        return new SelectManager($this->engine);
-    }
-
-    public function insert_manager() {
-        return new InsertManager($this->engine);
-    }
-
-    public function update_manager() {
-        return new UpdateManager($this->engine);
-    }
-
-    public function delete_manager() {
-        return new DeleteManager($this->engine);
+        return $this->from()->having($expr);
     }
 
     private function attributes_for($columns) {
