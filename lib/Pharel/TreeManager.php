@@ -19,7 +19,9 @@ class TreeManager {
 
     }
 
-    public function to_sql($engine = Table::$g_engine) {
+    public function to_sql($engine = null) {
+        if (is_null($engine))
+            $engine = Table::$g_engine;
         $collector = new Collectors\SQLString();
         $collector = $engine->connection->visitor()->accept($this->ast, $collector);
         return $collector->str;

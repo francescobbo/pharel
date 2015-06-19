@@ -3,6 +3,9 @@
 namespace Pharel\Visitors;
 
 class Reduce extends Visitor {
+    public function __construct() {
+    }
+
     public function accept($object, $collector = null) {
         return $this->visit($object, $collector);
     }

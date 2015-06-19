@@ -234,7 +234,7 @@ class ToSql extends Reduce
 
         if (!empty($o->havings)) {
             $collector->add(" HAVING ");
-            $collector = $this->inject_join($o->havings, $collector, self::AND);
+            $collector = $this->inject_join($o->havings, $collector, self::_AND);
         }
 
         if (!empty($o->windows)) {
@@ -512,7 +512,7 @@ class ToSql extends Reduce
         $collector = $this->visit($o->right, $collector);
 
         if ($o->escape) {
-            $collector->add(" ESCAPE ")
+            $collector->add(" ESCAPE ");
             return $collector->visit($o->escape, $collector);
         } else
             return $collector;
@@ -524,7 +524,7 @@ class ToSql extends Reduce
         $collector = $this->visit($o->right, $collector);
 
         if ($o->escape) {
-            $collector->add(" ESCAPE ")
+            $collector->add(" ESCAPE ");
             return $collector->visit($o->escape, $collector);
         } else
             return $collector;

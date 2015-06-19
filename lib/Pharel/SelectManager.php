@@ -183,7 +183,10 @@ class SelectManager extends TreeManager {
         return $this->ast->orders;
     }
 
-    public function where_sql($engine = Table::$g_engine) {
+    public function where_sql($engine = null) {
+        if (is_null($engine))
+            $engine = Table::$g_engine;
+
         if (empty($this->ctx->wheres))
             return null;
 

@@ -19,7 +19,7 @@ class Table implements \ArrayAccess {
         $this->table_name = &$this->name;
         $this->table_name = $table_name;
 
-        $this->engine = $engine;
+        $this->engine = self::$g_engine;
         $this->columns = null;
         $this->aliases = [];
         $this->table_alias = null;
@@ -27,7 +27,6 @@ class Table implements \ArrayAccess {
 
         if ($as != $this->name)
             $this->table_alias = $as;
-        }
     }
 
     public function alias($name = null) {

@@ -4,7 +4,7 @@ namespace Pharel\Collectors;
 
 class SQLString extends PlainString {
     public function __construct() {
-      parent::__construct()
+      parent::__construct();
       $this->bind_index = 1;
     }
 

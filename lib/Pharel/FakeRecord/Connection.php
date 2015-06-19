@@ -87,4 +87,8 @@ class Connection {
             return "'{$thing}'";
         }
     }
+
+    public function visitor() {
+        return new \Pharel\Visitors\ToSql($this);
+    }
 }

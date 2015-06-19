@@ -38,4 +38,12 @@ class ConnectionPool {
     public function quote($thing, $column = null) {
        return $this->connection->quote($thing, $column);
     }
+
+    public function quote_table_name($name) {
+        return "\"{$name}\"";
+    }
+
+    public function quote_column_name($name) {
+        return "\"{$name}\"";
+    }
 }

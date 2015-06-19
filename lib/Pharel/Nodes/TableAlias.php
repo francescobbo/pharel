@@ -44,5 +44,4 @@ class TableAlias extends Binary implements \ArrayAccess {
         $relation->able_to_type_cast();
     }
 }
-}
 
