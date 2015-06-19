@@ -26,7 +26,7 @@ class SelectManager extends TreeManager {
 
     public function limit() {
         if ($this->ast->limit)
-            return $this->ast->limit->expr->expr;
+            return $this->ast->limit->expr;
         else
             return null;
     }
@@ -229,8 +229,8 @@ class SelectManager extends TreeManager {
 
     public function take($limit) {
         if ($limit) {
-            $this->ast->limit = new Nodes\Limit(Nodes::build_quoted($limit));
-            $this->ctx->top   = new Nodes\Top(Nodes::build_quoted($limit));
+            $this->ast->limit = new Nodes\Limit($limit);
+            $this->ctx->top   = new Nodes\Top($limit);
         } else {
             $this->ast->limit = null;
             $this->ctx->top   = null;
